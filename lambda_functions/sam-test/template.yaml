@@ -1,0 +1,168 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: python3.12
+    MemorySize: 128
+    Timeout: 10
+    Environment:
+      Variables:
+        DYNAMODB_TABLE_NAME: far-database
+        DEFAULT_REGION: ap-south-1
+        DEFAULT_PROFILE: far-developer
+  Api:
+    BinaryMediaTypes:
+      - "*/*"
+
+Resources:
+  FARApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: FARApiGateway
+      Cors: "'*'"
+      StageName: dev
+      BinaryMediaTypes:
+        - multipart/form-data
+
+  SearchFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: FAR_Search
+      Handler: search_handler.handler
+      CodeUri: ../search
+      Events:
+        SearchApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FARApiGateway
+            Path: /search
+            Method: get
+    Metadata:
+      BuildMethod: python3.12
+      BuildProperties:
+        RequirementsFile: ../search/requirements.txt
+
+  ProfileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: FAR_Profile
+      Handler: profile_handler.handler
+      CodeUri: ../profile
+      Events:
+        ProfilePostApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FARApiGateway
+            Path: /profile
+            Method: post
+        ProfilePatchApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FARApiGateway
+            Path: /profile
+            Method: patch
+        ProfileGetApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FARApiGateway
+            Path: /profile
+            Method: get
+    Metadata:
+      BuildMethod: python3.12
+      BuildProperties:
+        RequirementsFile: ../profile/requirements.txt
+
+  ListingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: FAR_Listing
+      Handler: listings_handler.handler
+      CodeUri: ../listings
+      Events:
+        PostListingApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FARApiGateway
+            Path: /listings
+            Method: post
+        PutListingApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FARApiGateway
+            Path: /listings
+            Method: put
+    Metadata:
+      BuildMethod: python3.12
+      BuildProperties:
+        RequirementsFile: ../listings/requirements.txt
+
+  InterestsAndMatchesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: FAR_Interests_Matches
+      Handler: interests_handler.handler
+      CodeUri: ../interests
+      Events:
+        GetInterestsApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FARApiGateway
+            Path: /interests
+            Method: get
+        PostInterestsApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FARApiGateway
+            Path: /interests
+            Method: post
+        GetMatchApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FARApiGateway
+            Path: /match
+            Method: get
+    Metadata:
+      BuildMethod: python3.12
+      BuildProperties:
+        RequirementsFile: ../interests/requirements.txt
+
+  DeleteListingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: FAR_Listing
+      Handler: delete_listing_handler.handler
+      CodeUri: ../listings
+      Events:
+        DeleteListingApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FARApiGateway
+            Path: /listings
+            Method: delete
+    Metadata:
+      BuildMethod: python3.12
+      BuildProperties:
+        RequirementsFile: ../listings/requirements.txt
+
+  OwnersListingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: FAR_Listing
+      Handler: owner_listing_handler.handler
+      CodeUri: ../listings
+      Events:
+        GetAllListingByOwnerApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FARApiGateway
+            Path: /listings
+            Method: get
+    Metadata:
+      BuildMethod: python3.12
+      BuildProperties:
+        RequirementsFile: ../listings/requirements.txt
+
+
+
+

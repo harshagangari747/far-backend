@@ -1,0 +1,10 @@
+{
+  "httpMethod": "POST",
+  "userInfo": {
+    "name": "Swanson",
+    "emailId": "swanson.joe@gmail.com",
+    "age": 35,
+    "gender": "male",
+    "contact_num": "+91-7392949382"
+  }
+}
